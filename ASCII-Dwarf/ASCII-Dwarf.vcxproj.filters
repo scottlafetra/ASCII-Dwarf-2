@@ -24,12 +24,21 @@
     <ClCompile Include="InputHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Scenery.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ASCII-Graphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="InputHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenery.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ASCII-UI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

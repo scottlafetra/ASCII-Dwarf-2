@@ -113,10 +113,13 @@
     <ClCompile Include="ASCII-Graphics.cpp" />
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Scenery.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ASCII-Graphics.h" />
+    <ClInclude Include="ASCII-UI.h" />
     <ClInclude Include="InputHandler.h" />
+    <ClInclude Include="Scenery.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

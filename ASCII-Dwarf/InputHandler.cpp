@@ -30,6 +30,13 @@ void InputHandler::SafeClear()
 		ErrorExit("SetConsoleMode");
 }
 
+pair<int, int> InputHandler::GetScreenDimensions()
+{
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	return { csbi.srWindow.Right - csbi.srWindow.Left + 1, csbi.srWindow.Bottom - csbi.srWindow.Top + 1 };
+}
+
 vector<EventReturn> InputHandler::GetEvent()
 {
 

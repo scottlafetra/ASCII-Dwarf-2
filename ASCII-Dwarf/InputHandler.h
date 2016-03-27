@@ -29,6 +29,7 @@ public:
 
 	static InputHandler * GetHandler();
 	vector<EventReturn> GetEvent();
+	pair<int, int> GetScreenDimensions();
 	void SafeClear();
 private:
 	static InputHandler * instance;

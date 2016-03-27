@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <windows.h>
 
 #define UP 0
 #define RIGHT 1
@@ -24,36 +25,43 @@ namespace ASCII {
 		int width;
 		int height;
 
-		vector<vector<char>> charBuffer;
-
 		Coordinate position;
+
+	protected:
+		vector<vector<char>> charBuffer;
+		vector<vector<char>> chromaBuffer;
 
 	public:
 		Graphic(const int& width, const int& height);
-		Graphic(const int& width, const int& height, vector<vector<char>> initCharBuffer);
+		Graphic(const int& width, const int& height, vector<vector<char>> initCharBuffer, vector<vector<char>>);
 
 		void move(const int& dx, const int& dy);
 		void moveTo(const int& x, const int& y);
 
 		const Coordinate getPosition() const;
-		vector<vector<char>> const getBuffer() const;
+		vector<vector<char>> const getCharBuffer() const;
+		vector<vector<char>> const getChromaBuffer() const;
 
 		int getWidth() const;
 		int getHeight() const;
 
-		void clear();
+		void clear(bool clearChroma = true);
+
 		void draw(const Graphic& toDraw);
 		void drawWithAlpha(const Graphic& toDraw);
 		void flush() const;
 	};
 
-	class JumpingGraphic : public Graphic {
+	class WalkingGraphic : public Graphic {
 	public:
-		JumpingGraphic(const int& width, const int& height);
-		JumpingGraphic(const int& width, const int& height, vector<vector<char>> initCharBuffer);
+		WalkingGraphic(const int& width, const int& height);
+		WalkingGraphic(const int& width, const int& height, vector<vector<char>> initCharBuffer, vector<vector<char>> chromaBuffer);
+		WalkingGraphic(const int& width, const int& height, vector<vector<char>> initCharBuffer, char color);
 
 		void jump(const int& dx, const int& dy, Graphic& canvas);
 		void jumpTo(const int& x, const int& y, Graphic& canvas);
+
+		void walk(const int& dx, const int& dy, Graphic& canvas);
 	};
 }
 

@@ -4,7 +4,7 @@
 using namespace ASCII;
 
 Graphic::Graphic(const int& width, const int& height)
-: width(width), height(height), charBuffer(height, vector<char>(width)) {
+: width(width), height(height), charBuffer(height, vector<char>(width)), chromaBuffer(height, vector<char>(width)) {
 	
 	position.x = 0;
 	position.y = 0;
@@ -12,9 +12,12 @@ Graphic::Graphic(const int& width, const int& height)
 	clear();
 }
 
-Graphic::Graphic(const int& width, const int& height, vector<vector<char>> initCharBuffer) {
+
+
+Graphic::Graphic(const int& width, const int& height, vector<vector<char>> initCharBuffer, vector<vector<char>> initChromaBuffer) {
 	Graphic(width, height);
 
+	chromaBuffer = initChromaBuffer;
 	charBuffer = initCharBuffer;
 	Graphic::width  = width;
 	Graphic::height = height;
@@ -34,16 +37,22 @@ const Coordinate Graphic::getPosition() const {
 	return position;
 }
 
-vector<vector<char>> const Graphic::getBuffer() const {
+vector<vector<char>> const Graphic::getCharBuffer() const {
 	return charBuffer;
 }
 
-void Graphic::clear() {
+vector<vector<char>> const Graphic::getChromaBuffer() const {
+	return chromaBuffer;
+}
+
+void Graphic::clear(bool clearChroma) {
 
 	for (int y = 0; y < height; ++y) {
 		for (int x = 0; x < width; ++x) {
 
 			charBuffer[y][x] = ' ';
+			if (clearChroma)
+				chromaBuffer[y][x] = 0x01;
 		}
 	}
 }
@@ -61,7 +70,8 @@ void Graphic::draw(const Graphic& toDraw) {
 	for (int y = yInit; y < yMax; ++y) {
 		for (int x = xInit; x < xMax; ++x) {
 
-			charBuffer[drawPos.y + y][drawPos.x + x] = toDraw.getBuffer()[y][x];
+			charBuffer[drawPos.y + y][drawPos.x + x] = toDraw.charBuffer[y][x];
+			chromaBuffer[drawPos.y + y][drawPos.x + x] = toDraw.chromaBuffer[y][x];
 		}
 	}
 }
@@ -79,8 +89,11 @@ void Graphic::drawWithAlpha(const Graphic& toDraw) {
 		for (int y = yInit; y < yMax; ++y) {
 			for (int x = xInit; x < xMax; ++x) {
 
-				if (toDraw.getBuffer()[y][x] != ' ') {
-					charBuffer[drawPos.y + y][drawPos.x + x] = toDraw.getBuffer()[y][x];
+				if (toDraw.charBuffer[y][x] != ' ') {
+					charBuffer[drawPos.y + y][drawPos.x + x] = toDraw.charBuffer[y][x];
+				}
+				if (toDraw.chromaBuffer[y][x] != 0x00) {
+					chromaBuffer[drawPos.y + y][drawPos.x + x] = toDraw.chromaBuffer[y][x];
 				}
 			}
 		}
@@ -88,24 +101,13 @@ void Graphic::drawWithAlpha(const Graphic& toDraw) {
 
 
 void Graphic::flush() const {
-
-	
-	
-
 	for (int y = 0; y < height; ++y) {
 
-		string flushString = "";
-
 		for (int x = 0; x < width; ++x) {
-
-			flushString += charBuffer[y][x];
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), chromaBuffer[y][x]);
+			cout<< charBuffer[y][x];
 		}
-
-		cout << flushString;
 	}
-
-	
-
 }
 
 int Graphic::getWidth() const {
@@ -116,13 +118,18 @@ int Graphic::getHeight() const {
 	return height;
 }
 
-JumpingGraphic::JumpingGraphic(const int& width, const int& height)
+WalkingGraphic::WalkingGraphic(const int& width, const int& height)
 : Graphic(width, height) {}
 
-JumpingGraphic::JumpingGraphic(const int& width, const int& height, vector<vector<char>> initCharBuffer)
-: Graphic(width, height, initCharBuffer) {}
+WalkingGraphic::WalkingGraphic(const int& width, const int& height, vector<vector<char>> initCharBuffer, vector<vector<char>> chromaBuffer)
+: Graphic(width, height, initCharBuffer, chromaBuffer) {}
 
-void JumpingGraphic::jump(const int& dx, const int& dy, Graphic& canvas) {
+WalkingGraphic::WalkingGraphic(const int& width, const int& height, vector<vector<char>> initCharBuffer, char color)
+: WalkingGraphic(width, height, initCharBuffer, vector<vector<char>>(height, vector<char>(width, color))) {
+
+}
+
+void WalkingGraphic::jump(const int& dx, const int& dy, Graphic& canvas) {
 	Graphic shadow(getWidth(), getHeight());//create a shadow to delete
 	shadow.moveTo(getPosition().x, getPosition().y);
 
@@ -133,7 +140,7 @@ void JumpingGraphic::jump(const int& dx, const int& dy, Graphic& canvas) {
 	canvas.draw(*this);
 }
 
-void JumpingGraphic::jumpTo(const int& x, const int& y, Graphic& canvas) {
+void WalkingGraphic::jumpTo(const int& x, const int& y, Graphic& canvas) {
 	Graphic shadow(getWidth(), getHeight());//create a shadow to delete
 	shadow.moveTo(getPosition().x, getPosition().y);
 
@@ -142,4 +149,11 @@ void JumpingGraphic::jumpTo(const int& x, const int& y, Graphic& canvas) {
 	moveTo(x, y);
 
 	canvas.draw(*this);
+}
+
+void WalkingGraphic::walk(const int& dx, const int& dy, Graphic& canvas) {
+
+	if (canvas.getCharBuffer()[getPosition().y + dy][getPosition().x + dx] == ' ') {
+		jump(dx, dy, canvas);
+	}
 }
