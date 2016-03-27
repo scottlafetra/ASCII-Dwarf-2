@@ -89,18 +89,22 @@ void Graphic::drawWithAlpha(const Graphic& toDraw) {
 
 void Graphic::flush() const {
 
-	string flushString = "";
+	
 	
 
 	for (int y = 0; y < height; ++y) {
+
+		string flushString = "";
 
 		for (int x = 0; x < width; ++x) {
 
 			flushString += charBuffer[y][x];
 		}
+
+		cout << flushString;
 	}
 
-	cout << flushString << endl;
+	
 
 }
 

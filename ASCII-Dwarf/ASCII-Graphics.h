@@ -47,7 +47,7 @@ namespace ASCII {
 		void flush() const;
 	};
 
-	class JumpingGraphic : Graphic {
+	class JumpingGraphic : public Graphic {
 	public:
 		JumpingGraphic(const int& width, const int& height);
 		JumpingGraphic(const int& width, const int& height, vector<vector<char>> initCharBuffer);

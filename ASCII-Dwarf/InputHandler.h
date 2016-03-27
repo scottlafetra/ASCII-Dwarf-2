@@ -4,8 +4,22 @@
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
 using namespace std;
+
+
+class EventReturn
+{
+public:
+	int type; //0-keyboard, 1-mouse, 2-buffersizevent
+
+	EventReturn();
+
+	KEY_EVENT_RECORD* keyRecord;
+	MOUSE_EVENT_RECORD* mouseRecord;
+	pair<int,int> bufferRecord;
+};
 
 class InputHandler
 {
@@ -14,7 +28,8 @@ public:
 	~InputHandler();
 
 	static InputHandler * GetHandler();
-	void Run();
+	vector<EventReturn> GetEvent();
+	void SafeClear();
 private:
 	static InputHandler * instance;
 

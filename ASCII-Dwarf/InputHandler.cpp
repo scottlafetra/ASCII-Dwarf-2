@@ -1,5 +1,10 @@
 #include "InputHandler.h"
 
+EventReturn::EventReturn()
+{
+
+}
+
 InputHandler * InputHandler::instance = nullptr;
 
 InputHandler::InputHandler()
@@ -18,50 +23,63 @@ InputHandler::~InputHandler()
 
 }
 
-void InputHandler::Run()
+void InputHandler::SafeClear()
 {
-	while (true)
+	system("cls");
+	if (!SetConsoleMode(hStdin, fdwMode))
+		ErrorExit("SetConsoleMode");
+}
+
+vector<EventReturn> InputHandler::GetEvent()
+{
+
+	// Wait for the events. 
+	if (!ReadConsoleInput(
+		hStdin,      // input buffer handle 
+		irInBuf,     // buffer to read into 
+		128,         // size of read buffer 
+		&cNumRead)) // number of records read 
+		ErrorExit("ReadConsoleInput");
+
+	
+
+	vector<EventReturn>  returnMe(cNumRead);
+
+	// Dispatch the events to the appropriate handler. 
+	for (int i = 0; i < cNumRead; i++)
 	{
-		// Wait for the events. 
-		if (!ReadConsoleInput(
-			hStdin,      // input buffer handle 
-			irInBuf,     // buffer to read into 
-			128,         // size of read buffer 
-			&cNumRead)) // number of records read 
-			ErrorExit("ReadConsoleInput");
-
-		//system("cls");
-		if (!SetConsoleMode(hStdin, fdwMode))
-			ErrorExit("SetConsoleMode");
-
-		// Dispatch the events to the appropriate handler. 
-		for (int i = 0; i < cNumRead; i++)
+		switch (irInBuf[i].EventType)
 		{
-			switch (irInBuf[i].EventType)
-			{
-			case KEY_EVENT: // keyboard input 
-				KeyEventProc(irInBuf[i].Event.KeyEvent);
-				break;
+		case KEY_EVENT: // keyboard input 
+			returnMe[i].type = 0;
+			returnMe[i].keyRecord = &irInBuf[i].Event.KeyEvent;
+			break;
 
-			case MOUSE_EVENT: // mouse input 
-				MouseEventProc(irInBuf[i].Event.MouseEvent);
-				break;
+		case MOUSE_EVENT: // mouse input 
+			returnMe[i].type = 1;
+			returnMe[i].mouseRecord = &irInBuf[i].Event.MouseEvent;
+			break;
 
-			case WINDOW_BUFFER_SIZE_EVENT: // scrn buf. resizing 
-				break;
+		case WINDOW_BUFFER_SIZE_EVENT: // scrn buf. resizing 
+			returnMe[i].type = 2;
+			CONSOLE_SCREEN_BUFFER_INFO csbi;
+			GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+			returnMe[i].bufferRecord = { csbi.srWindow.Right - csbi.srWindow.Left + 1, csbi.srWindow.Bottom -csbi.srWindow.Top  +1 };
+			break;
 
-			case FOCUS_EVENT:  // disregard focus events 
-				break;
+		case FOCUS_EVENT:  // disregard focus events 
 
-			case MENU_EVENT:   //  right click event
-				break;
+		case MENU_EVENT:   //  right click event
+			returnMe[i].type = -1;
+			break;
 
-			default:
-				ErrorExit("Unknown event type");
-				break;
-			}
+		default:
+			ErrorExit("Unknown event type");
+			break;
 		}
 	}
+
+	return returnMe;
 }
 
 InputHandler * InputHandler::GetHandler()
