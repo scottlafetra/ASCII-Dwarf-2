@@ -1,4 +1,5 @@
 #include "ASCII-Graphics.h"
+#include "InputHandler.h"
 #include "windows.h"
 #include <iostream>
 #include <vector>
@@ -8,6 +9,9 @@ using namespace std;
 
 int main() {
 	//80 x 25
+
+	InputHandler* input = InputHandler::GetHandler();
+	input->Run();
 	
 	ASCII::Graphic screenBuffer(80, 23);
 
